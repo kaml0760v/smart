@@ -1,0 +1,24 @@
+import folium
+import pandas as pd
+import numpy as np
+district_wise_census = pd.read_csv("/content/district wise population and centroids.csv")
+district_wise_census.head()
+gujarat_districts = district_wise_census[district_wise_census["State"]=="Gujarat"]
+
+center_lat = gujarat_districts.mean().Latitude
+center_long = gujarat_districts.mean().Longitude
+m = folium.Map(location=[center_lat, center_long], zoom_start=6.5)
+m
+
+for district in gujarat_districts["District"].unique():
+  district_census = gujarat_districts[gujarat_districts["District"]==district]
+  folium.Circle(
+      location=[district_census.Latitude.values[0], district_census.Longitude.values[0]],
+      radius = float(district_census["Population in 2011"].values[0]/100),
+      color="yellow" if (district_census["Population in 2011"].values<2000000) else "blue",
+      fill_color="yellow" if (district_census["Population in 2011"].values<2000000) else "blue",
+      popup="Population 2011 : %s"%district_census["Population in 2011"].values[0],
+      tooltip = district_census.District.values[0],
+    ).add_to(m)
+  
+m
